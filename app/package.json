@@ -10,5 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "arangojs": "^7.6.1"
-  }
+  },
+  "type": "module"
 }
