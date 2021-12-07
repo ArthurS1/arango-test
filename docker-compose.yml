@@ -2,8 +2,11 @@ version: "3.9"
 
 services:
 
+  # my test app
   app:
     build: app
+    networks:
+      - default
 
   # arangodb, exposes port 8529
   db:
@@ -12,6 +15,8 @@ services:
       - ARANGO_NO_AUTH=1
     volumes:
       - "${PWD}/db:/var/lib/arangodb3"
+    networks:
+      - default
 
 networks:
   default:
