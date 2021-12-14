@@ -16,5 +16,5 @@ services:
       - "8529:8529" # publishing the port to host so you can use the web interface
     environment:
       - ARANGO_NO_AUTH=1
-    volumes:
-      - "${PWD}/db:/var/lib/arangodb3"
+        #volumes:
+        #- "${PWD}/db:/var/lib/arangodb3" # for persistance

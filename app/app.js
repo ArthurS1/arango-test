@@ -1,32 +1,58 @@
 import { Database, aql } from "arangojs";
 
-const connect = async (db) => {
-    const now = Date.now()
+/*//////////////////////////////////////////////////////////////////////////////////
+Example migration
+const migrate = async () => {
     try {
-        const cursor = await db.query(aql`
-            RETURN${now}
+        await db.createDatabase('social')
+        await db.createEdgeCollection('friendships')
+        await db.createCollection('people')
+        await db.createGraph('graph', {
+            collection : 'friendships',
+            from : 'people',
+            to : 'people'
+        })
+    } catch(err) {
+        console.log('Failed to recreate database.')
+        console.log(err)
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////*/
+
+const connect = async (db) => {
+    try {
+        const people = await db.query(aql`
+            FOR person IN people
+                RETURN person
         `)
-        const result = await cursor.next()
+        console.log('PEOPLE')
+        people.forEach((s) => {console.log(s)})
+        const relations = await db.query(aql`
+            FOR friendship IN friendships 
+                RETURN friendship 
+        `)
+        console.log('RELATIONS')
+        relations.forEach((s) => {console.log(s)})
+        const graph = await db.query(aql`
+            FOR vertex IN OUTBOUND "people/Arthur" GRAPH "network"
+                RETURN vertex
+        `)
+        console.log('GRAPH TRAVERSAL from Arthur')
+        graph.forEach((s) => {console.log(s)})
     } catch (err) {
         console.log(err)
     }
 }
 
-const migrate = async (dbName, collectionName) => {
-    try {
-        await db.createDatabase(dbName)
-        await db.createCollection(collectionName)
-    } catch(err) {
-        console.log(`Failed to recreate database '${dbName}'.`)
-    }
-}
-
 console.log('Starting demo!')
-const dbName = 'kitchen'
-const collectionName = 'recipies'
+let db = new Database({url: 'http://db:8529'})
+db = db.database('social')
 
-const db = new Database({url: 'http://db:8529'})
-migrate(dbName, collectionName)
-db.database(dbName)
-db.coll
+console.log(`
+Edges collections:
+    ${await db.graph('network').listEdgeCollections()}
+Vertices collections:
+    ${await db.graph('network').listVertexCollections()}
+`)
+
 await connect(db)
